@@ -6,16 +6,27 @@
  * Time: 23:48
  */
 
-$client = new swoole_websocket_server("0.0.0.0", 9501);
+class Client
+{
+    private $client;
 
-$server->on("open", function (swoole_websocket_server $server, $request) {
-    var_dump($request->fd, $request->get, $request->server);
-    $server->push($request->fd, "hello, welcome\n");
-});
-$server->on("message", function (swoole_websocket_server $server, swoole_websocket_frame $frame) {
-    echo "Message: {$frame->data}\n";
-    $server->push($frame->fd, "server: {$frame->data}");
-});
-$server->on("close", function ($fd) {
-    echo "client-{$fd} is closed\n";
-});
+    public function __construct() {
+        $this->client = new swoole_client(SWOOLE_SOCK_TCP);
+    }
+
+    public function connect() {
+        if( !$this->client->connect("0.0.0.0", 9501 , 1) ) {
+            echo "Error: {$this->client->errMsg}[{$this->client->errCode}]\n";
+        }
+
+        fwrite(STDOUT, "请输入消息 Please input msg：");
+        $msg = trim(fgets(STDIN));
+        $this->client->send( $msg );
+
+        $message = $this->client->recv();
+        echo "Get Message From Server:{$message}\n";
+    }
+}
+
+$client = new Client();
+$client->connect();

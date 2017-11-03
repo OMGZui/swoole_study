@@ -6,24 +6,41 @@
  * Time: 23:43
  */
 
-//创建websocket服务器对象，监听0.0.0.0:9502端口
-$ws = new swoole_websocket_server("0.0.0.0", 9502);
+class Server
+{
+    private $serv;
 
-//监听WebSocket连接打开事件
-$ws->on('open', function ($ws, $request) {
-    var_dump($request->fd, $request->get, $request->server);
-    $ws->push($request->fd, "hello, welcome\n");
-});
+    public function __construct() {
+        $this->serv = new swoole_server("0.0.0.0", 9501);
+        $this->serv->set(array(
+            'worker_num' => 8,
+            'daemonize' => false,
+        ));
 
-//监听WebSocket消息事件
-$ws->on('message', function ($ws, $frame) {
-    echo "Message: {$frame->data}\n";
-    $ws->push($frame->fd, "server: {$frame->data}");
-});
+        $this->serv->on('Start', array($this, 'onStart'));
+        $this->serv->on('Connect', array($this, 'onConnect'));
+        $this->serv->on('Receive', array($this, 'onReceive'));
+        $this->serv->on('Close', array($this, 'onClose'));
 
-//监听WebSocket连接关闭事件
-$ws->on('close', function ($ws, $fd) {
-    echo "client-{$fd} is closed\n";
-});
+        $this->serv->start();
+    }
 
-$ws->start();
+    public function onStart( $serv ) {
+        echo "Start\n";
+    }
+
+    public function onConnect( $serv, $fd, $from_id ) {
+        $serv->send( $fd, "Hello {$fd}!" );
+    }
+
+    public function onReceive( swoole_server $serv, $fd, $from_id, $data ) {
+        echo "Get Message From Client {$fd}:{$data}\n";
+        $serv->send($fd, $data);
+    }
+
+    public function onClose( $serv, $fd, $from_id ) {
+        echo "Client {$fd} close connection\n";
+    }
+}
+// 启动服务器 Start the server
+$server = new Server();
