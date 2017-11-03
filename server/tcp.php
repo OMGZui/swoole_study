@@ -9,7 +9,7 @@
 //require '../vendor/autoload.php';
 
 //创建Server对象，监听 127.0.0.1:9501端口
-$server = new swoole_server("127.0.0.1", 9501);
+$server = new swoole_server("104.223.3.138", 9501);
 
 //监听连接进入事件
 $server->on('connect', function ($server, $fd) {
