@@ -6,22 +6,26 @@
  * Time: 23:48
  */
 
+require __DIR__ . '/../vendor/autoload.php';
+
 class Client
 {
     private $client;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->client = new swoole_client(SWOOLE_SOCK_TCP);
     }
 
-    public function connect() {
-        if( !$this->client->connect("0.0.0.0", 9501 , 1) ) {
+    public function connect()
+    {
+        if (!$this->client->connect("0.0.0.0", 9501, 1)) {
             echo "Error: {$this->client->errMsg}[{$this->client->errCode}]\n";
         }
 
         fwrite(STDOUT, "请输入消息 Please input msg：");
         $msg = trim(fgets(STDIN));
-        $this->client->send( $msg );
+        $this->client->send($msg);
 
         $message = $this->client->recv();
         echo "Get Message From Server:{$message}\n";

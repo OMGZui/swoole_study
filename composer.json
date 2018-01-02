@@ -7,12 +7,17 @@
             "email": "862275679@qq.com"
         }
     ],
-    "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "symfony/var-dumper": "^4.0"
+    },
     "require-dev": {
         "eaglewu/swoole-ide-helper": "dev-master"
     },
     "autoload": {
-        "classmap": ["client/","server/"]
+        "classmap": [
+            "client/",
+            "server/",
+            "origin/"
+        ]
     }
 }
